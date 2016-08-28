@@ -62,10 +62,32 @@ public class EPI {
 			return result;
 		}
 	}
+	
+	/**
+	 * Problem: Check if a number is a palindrome through its digits.
+	 * @param n
+	 * @return True if number is a palindrome, False otherwise
+	 */
+	static boolean isNumericPalindrome(int n){
+		int reversed = reverseDigits(n);
+		return n == reversed;
+	}
 
 
 	public static void main(String[] args) {
-		// Test case for reverseDigits
+		// Test cases for reverseDigits
+		System.out.println();
+		System.out.println("Reversing Digits...");
 		System.out.println(reverseDigits(-34879234));
+		System.out.println(reverseDigits(-10));
+		System.out.println(reverseDigits(45));
+		
+		// Test cases for isNumericPalindrome
+		System.out.println();
+		System.out.println("Checking if numbers are palindrome...");
+		System.out.println(isNumericPalindrome(1));
+		System.out.println(isNumericPalindrome(20));
+		System.out.println(isNumericPalindrome(45));
+		System.out.println(isNumericPalindrome(11311));
 	}
 }

@@ -62,7 +62,7 @@ public class LeetCode {
 
 		return grayCode;
 	}
-	
+
 	/**
 	 * Problem: Return a gray code of for size n.
 	 * @param n
@@ -78,7 +78,7 @@ public class LeetCode {
 				.map(p -> Integer.parseInt(p, 2))
 				.collect(Collectors.toList());
 	}
-	
+
 	// Class for node of a singly-linked-list
 	public class ListNode {
 		int val;
@@ -209,6 +209,65 @@ public class LeetCode {
 		}
 		return new int[] {i, j};
 	}
+
+	public static List<String> restoreIpRecurHelper(String s) {
+		if (s.length() == 0) {
+			return new ArrayList<String>();
+		}
+		if (s.length() == 1) {
+			return Arrays.asList(new String[] {s});
+		}
+		int i = 1;
+		List<String> result = new ArrayList<String>();
+		while (i <= 3) {
+			if (i <= s.length()) {
+				String ipSection = s.substring(0, i);
+				if (i > 1) {
+				    if (ipSection.charAt(0) == '0') {
+				    	i++;
+				        continue;
+				    }
+				}
+				if (i == 3) {
+					if (Integer.parseInt(ipSection) > 255) {
+						break;
+					}
+				}
+				if (i == s.length()) {
+					result.add(ipSection);
+				} else {
+					List<String> allOtherSections = restoreIpRecurHelper(s.substring(i, s.length()));
+					for (String section : allOtherSections) {
+						result.add(ipSection + "." + section);
+					}
+				}
+			}
+			i++;
+		}
+		return result;
+	}
+
+	/**
+	 * Problem: Given a string of digits return all of the valid ip address combinations
+	 * @param digits
+	 * @return list of all IP addressed
+	 * @url https://leetcode.com/problems/restore-ip-addresses/
+	 */
+	public static List<String> restoreIpAddresses(String s) {
+		List<String> allIpAddresses = restoreIpRecurHelper(s);
+		return allIpAddresses
+				.stream()
+				.filter(p -> {
+					int count = 0;
+					for (int i = 0; i < p.length(); i++) {
+						if (p.charAt(i) == '.') {
+							count++;
+						}
+					}
+					return count == 3;
+				})
+				.collect(Collectors.toList());
+	} 
 
 	public static void main(String[] args) {
 		/**
