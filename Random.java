@@ -103,6 +103,58 @@ public class Random {
 				.collect(Collectors.toList());
 	}
 	
+	static boolean isValidNeighbor(int[][] ocean, int x, int y) {
+		return (x >= 0 && 
+				x < ocean.length && 
+				y >= 0 && 
+				y < ocean[0].length &&
+				ocean[x][y] > 0);
+	}
+	
+	static List<List<Integer>> findNeighbors(int[][] ocean, Set<List<Integer>> visited, List<Integer> point) {
+		List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
+		for (int i = -1; i <= 1; i++) {
+			for (int j = -1; j <= 1; j++) {
+				int xCor = point.get(0) + i;
+				int yCor = point.get(1) + j;
+				if (isValidNeighbor(ocean, xCor, yCor) && 
+					!visited.contains(Arrays.asList(xCor, yCor))) {
+					neighbors.add(Arrays.asList(xCor, yCor));
+				}
+			}
+		}
+		return neighbors;
+	}
+	
+	/**
+	 * Given a 2D array representing an ocean/body of water where 0 values
+	 * correspond to water and > 0 values represent land, return the number
+	 * of continuous islands there are in the ocean.
+	 * @param ocean
+	 * @return number of islands
+	 */
+	static int numIslands(int[][] ocean) {
+		int numberOfIslands = 0;
+		Set<List<Integer>> visited = new HashSet<List<Integer>>();
+		for (int i = 0; i < ocean.length; i++) {
+			for (int j = 0; j < ocean[0].length; j++) {
+				if (ocean[i][j] > 0 && !visited.contains(Arrays.asList(i, j))) {
+					numberOfIslands++;
+					Queue<List<Integer>> frontier = new LinkedList<List<Integer>>();
+					frontier.add(Arrays.asList(i,j));
+					while (!frontier.isEmpty()) {
+						List<Integer> currPoint = frontier.poll();
+						visited.add(currPoint);
+						List<List<Integer>> neighbors = 
+								findNeighbors(ocean, visited, currPoint);
+						frontier.addAll(neighbors);
+					}
+				}
+			}
+		}
+		return numberOfIslands;
+	}
+	
 	public static void main(String[] args) {
 		
 		// Test cases for numWaysStairCaseHelper
@@ -121,5 +173,28 @@ public class Random {
 		System.out.println(printNumWaysStairCase(2));
 		System.out.println(printNumWaysStairCase(3));
 		System.out.println(printNumWaysStairCase(4));
+		
+		// Test cases for numIslands
+		System.out.println();
+		int[][] oceanOne = {{1,0,3},{1,0,3},{1,0,3}};
+		for (int i = 0 ; i < oceanOne.length; i++) {
+			System.out.println(Arrays.toString(oceanOne[i]));
+		}
+		System.out.println(numIslands(oceanOne));
+		int[][] oceanTwo = {{1,2,3},{1,2,3},{1,2,3}};
+		for (int i = 0 ; i < oceanTwo.length; i++) {
+			System.out.println(Arrays.toString(oceanTwo[i]));
+		}
+		System.out.println(numIslands(oceanTwo));
+		int[][] oceanThree = {{1,0,1},{0,0,0},{1,0,1}};
+		for (int i = 0 ; i < oceanThree.length; i++) {
+			System.out.println(Arrays.toString(oceanThree[i]));
+		}
+		System.out.println(numIslands(oceanThree));
+		int[][] oceanFour = {{0,0,0},{0,0,0},{0,0,0}};
+		for (int i = 0 ; i < oceanFour.length; i++) {
+			System.out.println(Arrays.toString(oceanFour[i]));
+		}
+		System.out.println(numIslands(oceanFour));
 	}
 }
