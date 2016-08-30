@@ -155,6 +155,77 @@ public class Random {
 		return numberOfIslands;
 	}
 	
+	static final List<Integer> coins = Arrays.asList(25,10,5,1);
+	
+	static int makeChangeNumWaysHelper(int n, int[] dpMem, int currCoinIndex) {
+		if (dpMem[n] != 0) {
+			return dpMem[n];
+		}
+		int result = 0;
+		for (int i = currCoinIndex; i < coins.size(); i++) {
+			if (n >= coins.get(i)) {
+				result += makeChangeNumWaysHelper(n - coins.get(i), dpMem, i);
+			}
+		}
+		dpMem[n] = result;
+		return result;
+	}
+	/**
+	 * Problem: Given a certain dollar amount where the last two digits represent
+	 * the cents, return the total number of ways to make that amount using standard
+	 * common-found U.S coins.
+	 * @param n
+	 * @return total number of ways
+	 */
+	static int makeChangeNumWays(int n) {
+		int[] dpMem = new int[n + 1];
+		dpMem[0] = 1;
+		dpMem[1] = 1;
+		return makeChangeNumWaysHelper(n, dpMem, 0);
+	}
+	
+	static int makeChangeMinCoinsHelper(int n, int[] dpMem, int currCoinIndex) {
+		if (n == 0) {
+			return 0;
+		}
+		if (dpMem[n] != 0) {
+			return dpMem[n];
+		}
+		int currMin = Integer.MAX_VALUE - 1;
+		for (int i = currCoinIndex; i < coins.size(); i++) {
+			if (coins.get(i) <= n) {
+				int currNumCoins = makeChangeMinCoinsHelper(n - coins.get(i), dpMem, i);
+				if (currNumCoins <= currMin) {
+					currMin = currNumCoins;
+				}
+			}
+		}
+		currMin++;
+		dpMem[n] = currMin;
+		return currMin;
+	}
+	
+	/**
+	 * Problem: Given a certain dollar amount where the last two digits represent
+	 * the cents, return the mininum number of coins to make that value.
+	 * @param n
+	 * @return mininum number of coins to make the dollar amount
+	 */
+	static int makeChangeMinCoins(int n) {
+		if (n == 0) {
+			return 0;
+		}
+		if (n <= 4) {
+			return 1;
+		}
+		int[] dpMem = new int[n+1];
+		dpMem[1] = 1;
+		dpMem[2] = 1;
+		dpMem[3] = 1;
+		dpMem[4] = 1;
+		return makeChangeMinCoinsHelper(n, dpMem, 0);
+	}
+	
 	public static void main(String[] args) {
 		
 		// Test cases for numWaysStairCaseHelper
@@ -196,5 +267,15 @@ public class Random {
 			System.out.println(Arrays.toString(oceanFour[i]));
 		}
 		System.out.println(numIslands(oceanFour));
+		
+		// Test cases for makeChangeNumWays
+		System.out.println();
+		System.out.println(makeChangeNumWays(5));
+		System.out.println(makeChangeNumWays(10));
+		System.out.println(makeChangeNumWays(25));
+		
+		// Test cases for makeChangeMinCoins
+		System.out.println();
+		System.out.println(makeChangeMinCoins(420));
 	}
 }
