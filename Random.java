@@ -157,9 +157,9 @@ public class Random {
 	
 	static final List<Integer> coins = Arrays.asList(25,10,5,1);
 	
-	static int makeChangeNumWaysHelper(int n, int[] dpMem, int currCoinIndex) {
-		if (dpMem[n] != 0) {
-			return dpMem[n];
+	static int makeChangeNumWaysHelper(int n, int[][] dpMem, int currCoinIndex) {
+		if (dpMem[n][currCoinIndex] != 0) {
+			return dpMem[n][currCoinIndex];
 		}
 		int result = 0;
 		for (int i = currCoinIndex; i < coins.size(); i++) {
@@ -167,7 +167,7 @@ public class Random {
 				result += makeChangeNumWaysHelper(n - coins.get(i), dpMem, i);
 			}
 		}
-		dpMem[n] = result;
+		dpMem[n][currCoinIndex] = result;
 		return result;
 	}
 	/**
@@ -178,18 +178,19 @@ public class Random {
 	 * @return total number of ways
 	 */
 	static int makeChangeNumWays(int n) {
-		int[] dpMem = new int[n + 1];
-		dpMem[0] = 1;
-		dpMem[1] = 1;
+		int[][] dpMem = new int[n + 1][coins.size() + 1];
+		for (int i = 0; i < dpMem[0].length; i++) {
+			dpMem[0][i] = 1;
+		}
 		return makeChangeNumWaysHelper(n, dpMem, 0);
 	}
 	
-	static int makeChangeMinCoinsHelper(int n, int[] dpMem, int currCoinIndex) {
+	static int makeChangeMinCoinsHelper(int n, int[][] dpMem, int currCoinIndex) {
 		if (n == 0) {
 			return 0;
 		}
-		if (dpMem[n] != 0) {
-			return dpMem[n];
+		if (dpMem[n][currCoinIndex] != 0) {
+			return dpMem[n][currCoinIndex];
 		}
 		int currMin = Integer.MAX_VALUE - 1;
 		for (int i = currCoinIndex; i < coins.size(); i++) {
@@ -201,7 +202,7 @@ public class Random {
 			}
 		}
 		currMin++;
-		dpMem[n] = currMin;
+		dpMem[n][currCoinIndex] = currMin;
 		return currMin;
 	}
 	
@@ -218,11 +219,10 @@ public class Random {
 		if (n <= 4) {
 			return 1;
 		}
-		int[] dpMem = new int[n+1];
-		dpMem[1] = 1;
-		dpMem[2] = 1;
-		dpMem[3] = 1;
-		dpMem[4] = 1;
+		int[][] dpMem = new int[n+1][coins.size() + 1];
+		for (int i = 0; i < dpMem[0].length; i++) {
+			dpMem[1][i] = 1;
+		}
 		return makeChangeMinCoinsHelper(n, dpMem, 0);
 	}
 	

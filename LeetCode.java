@@ -210,6 +210,7 @@ public class LeetCode {
 		return new int[] {i, j};
 	}
 
+	// Helper function for restoreIpAddresses
 	public static List<String> restoreIpRecurHelper(String s) {
 		if (s.length() == 0) {
 			return new ArrayList<String>();
@@ -223,10 +224,10 @@ public class LeetCode {
 			if (i <= s.length()) {
 				String ipSection = s.substring(0, i);
 				if (i > 1) {
-				    if (ipSection.charAt(0) == '0') {
-				    	i++;
-				        continue;
-				    }
+					if (ipSection.charAt(0) == '0') {
+						i++;
+						continue;
+					}
 				}
 				if (i == 3) {
 					if (Integer.parseInt(ipSection) > 255) {
@@ -267,7 +268,106 @@ public class LeetCode {
 					return count == 3;
 				})
 				.collect(Collectors.toList());
-	} 
+	}
+
+	/**
+	 * Problem: Given a string of words, reverse the words in the String.
+	 * @param s
+	 * @return String with words reversed and space separated.
+	 * @url https://leetcode.com/problems/reverse-words-in-a-string/
+	 */
+	public String reverseWords(String s) {
+		StringBuilder acc = new StringBuilder();
+		int i = s.length() - 1;
+		while (i >= 0) {
+			if (s.charAt(i) != ' ') {
+				int j = i - 1;
+				while(j >= 0 && s.charAt(j) != ' ') {
+					j--;
+				}
+				if (j < 0) {
+					j++;
+				}
+				if (s.charAt(j) == ' ') {
+					j++;
+				}
+				acc.append(s.substring(j,i+1));
+				acc.append(" ");
+				i = j;
+			}
+			i--;
+		}
+		return acc.toString().trim();
+	}
+
+	// Helper function for integerBreak
+	public int integerBreakHelper(int n, int[] dpMem) {
+		if (dpMem[n] != 0) {
+			return dpMem[n];
+		}
+		int max = 0;
+		for (int i = 1; i < n; i++) {
+			int recurBreak = i * integerBreakHelper(n - i, dpMem);
+			int recurDontBreak = i * (n - i);
+			int currMax = Math.max(recurBreak, recurDontBreak);
+			if (currMax > max) {
+				max = currMax;
+			}
+		}
+		dpMem[n] = max;
+		return max;
+	}
+
+	/**
+	 * Problem: Given an integer, break it up to the sum of smaller integers
+	 * where the product of these integers is maximized across all possibilities.
+	 * @param n
+	 * @return the max product
+	 * @url https://leetcode.com/problems/integer-break/
+	 */
+	public int integerBreak(int n) {
+		int[] dpMem = new int[n+1];
+		dpMem[0] = 1;
+		dpMem[1] = 1;
+		return integerBreakHelper(n, dpMem);
+	}
+
+	// Helper function for sumNumbers
+	public void sumNumbersHelper(int currNum, TreeNode root, List<Integer> numbersToAdd) {
+		if (root.left == null && root.right == null) {
+			numbersToAdd.add(currNum * 10 + root.val);
+			return;
+		}
+		if (root.left != null) {
+			sumNumbersHelper(currNum * 10 + root.val, root.left, numbersToAdd);
+		}
+		if (root.right != null) {
+			sumNumbersHelper(currNum * 10 + root.val, root.right, numbersToAdd);
+		}
+	}
+
+	/**
+	 * Problem: Given a tree, return the sum of all the numbers represented by
+	 * root to leaf paths.
+	 * @param root
+	 * @return the sum of all the numbers represented by paths.
+	 * @url https://leetcode.com/problems/sum-root-to-leaf-numbers/
+	 */
+	public int sumNumbers(TreeNode root) {
+		if (root == null) {
+			return 0;
+		}
+		if (root.left == null && root.right == null) {
+			return root.val;
+		}
+		List<Integer> numsToAdd = new ArrayList<>();
+		sumNumbersHelper(0, root, numsToAdd);
+		int result = 0;
+		for (Integer num : numsToAdd) {
+			result += num;
+		}
+		return result;
+	}
 
 	public static void main(String[] args) {
 		/**
