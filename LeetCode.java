@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -367,6 +368,39 @@ public class LeetCode {
 			result += num;
 		}
 		return result;
+	}
+
+	/**
+	 * Problem: Given a ransome note and a magazine return true if the ransome note
+	 * can be constructed with the letters found in the magazine.
+	 * @param ransomNote
+	 * @param magazine
+	 * @return true if the ransome note can be constructed, false otherwise.
+	 * @url https://leetcode.com/problems/ransom-note/
+	 */
+	public boolean canConstruct(String ransomNote, String magazine) {
+		if (ransomNote.length() > magazine.length()) {
+			return false;
+		}
+		Map<Character, Integer> charCountMapMagazine = new HashMap<>();
+		for (int i = 0; i < magazine.length(); i++) {
+			if (!charCountMapMagazine.containsKey(magazine.charAt(i))) {
+				charCountMapMagazine.put(magazine.charAt(i), 1);
+			} else {
+				charCountMapMagazine.put(magazine.charAt(i), charCountMapMagazine.get(magazine.charAt(i)) + 1);
+			}
+
+		}
+		for (int j = 0; j < ransomNote.length(); j++) {
+			if (!charCountMapMagazine.containsKey(ransomNote.charAt(j))) {
+				return false;
+			} else if (charCountMapMagazine.get(ransomNote.charAt(j)) == 0) {
+				return false;
+			} else {
+				charCountMapMagazine.put(ransomNote.charAt(j), charCountMapMagazine.get(ransomNote.charAt(j)) - 1);
+			}
+		}
+		return true;
 	}
 
 	public static void main(String[] args) {
