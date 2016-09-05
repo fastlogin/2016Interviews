@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
  * Random questions acquired from various sources.
  */
 public class Random {
-	
+
 	// Recursive helper for number of ways of climbing a stair case.
 	static int numWaysStairCaseHelper(int n, int[] dpMem) {
 		if (dpMem[n] != 0) {
@@ -18,7 +18,7 @@ public class Random {
 		dpMem[n] = result;
 		return result;
 	}
-	
+
 	/**
 	 * Problem: Given a staircase of height n, and you can either take 1,2, or 3
 	 * steps at a time, how many different ways can you reach the top?
@@ -36,7 +36,7 @@ public class Random {
 		int result = numWaysStairCaseHelper(n, dpMem);
 		return result;
 	}
-	
+
 	// Helper for printing out all possible ways to get to top of stair case
 	static List<StringBuilder> printNumWaysStairCaseHelper(int n, ArrayList<List<StringBuilder>> dpMem) {
 		if (dpMem.get(n) != null) {
@@ -75,7 +75,7 @@ public class Random {
 		dpMem.add(n, result);
 		return result;
 	}
-	
+
 	/**
 	 * Problem: Given a staircase of height n, and you can either take 1,2, or 3
 	 * steps at a time, print out all the different ways you can reach the top.
@@ -102,7 +102,7 @@ public class Random {
 				.map(p -> p.toString())
 				.collect(Collectors.toList());
 	}
-	
+
 	static boolean isValidNeighbor(int[][] ocean, int x, int y) {
 		return (x >= 0 && 
 				x < ocean.length && 
@@ -110,7 +110,7 @@ public class Random {
 				y < ocean[0].length &&
 				ocean[x][y] > 0);
 	}
-	
+
 	static List<List<Integer>> findNeighbors(int[][] ocean, Set<List<Integer>> visited, List<Integer> point) {
 		List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
 		for (int i = -1; i <= 1; i++) {
@@ -118,14 +118,14 @@ public class Random {
 				int xCor = point.get(0) + i;
 				int yCor = point.get(1) + j;
 				if (isValidNeighbor(ocean, xCor, yCor) && 
-					!visited.contains(Arrays.asList(xCor, yCor))) {
+						!visited.contains(Arrays.asList(xCor, yCor))) {
 					neighbors.add(Arrays.asList(xCor, yCor));
 				}
 			}
 		}
 		return neighbors;
 	}
-	
+
 	/**
 	 * Given a 2D array representing an ocean/body of water where 0 values
 	 * correspond to water and > 0 values represent land, return the number
@@ -154,9 +154,9 @@ public class Random {
 		}
 		return numberOfIslands;
 	}
-	
+
 	static final List<Integer> coins = Arrays.asList(25,10,5,1);
-	
+
 	static int makeChangeNumWaysHelper(int n, int[][] dpMem, int currCoinIndex) {
 		if (dpMem[n][currCoinIndex] != 0) {
 			return dpMem[n][currCoinIndex];
@@ -184,7 +184,7 @@ public class Random {
 		}
 		return makeChangeNumWaysHelper(n, dpMem, 0);
 	}
-	
+
 	static int makeChangeMinCoinsHelper(int n, int[][] dpMem, int currCoinIndex) {
 		if (n == 0) {
 			return 0;
@@ -205,7 +205,7 @@ public class Random {
 		dpMem[n][currCoinIndex] = currMin;
 		return currMin;
 	}
-	
+
 	/**
 	 * Problem: Given a certain dollar amount where the last two digits represent
 	 * the cents, return the mininum number of coins to make that value.
@@ -225,9 +225,42 @@ public class Random {
 		}
 		return makeChangeMinCoinsHelper(n, dpMem, 0);
 	}
-	
+
+	// Helper function for subsetSum
+	static void subsetSumHelper(
+			List<List<Integer>> allSubSets, 
+			List<Integer> someSet, 
+			List<Integer> currSet, 
+			int target, 
+			int currListIndex) 
+	{
+		if (target == 0) {
+			allSubSets.add(currSet);
+		}
+		int i = currListIndex;
+		while (i < someSet.size()) {
+			List<Integer> newCurrSet = new ArrayList<>(currSet);
+			newCurrSet.add(someSet.get(i));
+			subsetSumHelper(allSubSets, someSet, newCurrSet, target - someSet.get(i), i + 1);
+			i++;
+		}
+	}
+
+	/**
+	 * Problem: Given a target value and a list of values, return all subsets of the list
+	 * that sum to that value.
+	 * @param someSet
+	 * @param target
+	 * @return list of subsets
+	 */
+	static List<List<Integer>> subsetSum(List<Integer> someSet, int target) {
+		List<List<Integer>> result = new ArrayList<>();
+		subsetSumHelper(result, someSet, new ArrayList<>(), target, 0);
+		return result;
+	}
+
 	public static void main(String[] args) {
-		
+
 		// Test cases for numWaysStairCaseHelper
 		System.out.println();
 		System.out.println(numWaysStairCase(1));
@@ -236,7 +269,7 @@ public class Random {
 		System.out.println(numWaysStairCase(4));
 		System.out.println(numWaysStairCase(27));
 		System.out.println(numWaysStairCase(30));
-		
+
 		// Test cases for printNumWaysStairCaseHelper
 		System.out.println();
 		System.out.println(printNumWaysStairCase(0));
@@ -244,7 +277,7 @@ public class Random {
 		System.out.println(printNumWaysStairCase(2));
 		System.out.println(printNumWaysStairCase(3));
 		System.out.println(printNumWaysStairCase(4));
-		
+
 		// Test cases for numIslands
 		System.out.println();
 		int[][] oceanOne = {{1,0,3},{1,0,3},{1,0,3}};
@@ -267,15 +300,19 @@ public class Random {
 			System.out.println(Arrays.toString(oceanFour[i]));
 		}
 		System.out.println(numIslands(oceanFour));
-		
+
 		// Test cases for makeChangeNumWays
 		System.out.println();
 		System.out.println(makeChangeNumWays(5));
 		System.out.println(makeChangeNumWays(10));
 		System.out.println(makeChangeNumWays(25));
-		
+
 		// Test cases for makeChangeMinCoins
 		System.out.println();
 		System.out.println(makeChangeMinCoins(420));
+
+		// Test cases for subsetSum
+		System.out.println();
+		System.out.println(subsetSum(Arrays.asList(1,2,3,4,-1), 2));
 	}
 }
