@@ -403,6 +403,187 @@ public class LeetCode {
 		return true;
 	}
 
+	// Helper function for setZeroes
+	public void setZeroesHelper(int[][] matrix, int x, int y, Set<List<Integer>> visited) {
+		if (visited.contains(new ArrayList<Integer>(Arrays.asList(x,y)))) {
+			return;
+		}
+		for (int i = 0; i < matrix.length; i++) {
+			List<Integer> coor = new ArrayList<Integer>(Arrays.asList(i,y));
+			if (visited.contains(coor)) {
+				continue;
+			}
+			if (matrix[i][y] != 0) {
+				visited.add(coor);
+				matrix[i][y] = 0; 
+			}
+		}
+		for (int j = 0; j < matrix[0].length; j++) {
+			List<Integer> coor = new ArrayList<Integer>(Arrays.asList(x,j));
+			if (visited.contains(coor)) {
+				continue;
+			}
+			if (matrix[x][j] != 0) {
+				visited.add(coor);
+				matrix[x][j] = 0; 
+			}
+		}
+	}
+
+	/**
+	 * Problem: Given a matrix and given an element is 0, set all elements
+	 * in the same row and col as that element to 0 as well in place.
+	 * @param matrix
+	 * @return nothing, modify the matrix in place
+	 * @url https://leetcode.com/problems/set-matrix-zeroes/
+	 */
+	public void setZeroes(int[][] matrix) {
+		Set<List<Integer>> visited = new HashSet<>();
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[0].length; j++) {
+				if (matrix[i][j] == 0) {
+					setZeroesHelper(matrix, i, j, visited);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Problem: Two sum
+	 * @param nums
+	 * @param target
+	 * @return [index 1, index 2]
+	 * @url https://leetcode.com/problems/two-sum/
+	 */
+	public int[] twoSum(int[] nums, int target) {
+		Map<Integer, Integer> differenceMap = new HashMap<>();
+		int[] result = new int[2];
+		for (int i = 0; i < nums.length; i++) {
+			if (differenceMap.containsKey(nums[i])) {
+				result[0] = differenceMap.get(nums[i]);
+				result[1] = i;
+				break;
+			} else {
+				differenceMap.put(target - nums[i] , i);
+			}
+		}
+		return result;
+	}
+
+	// Helper function for wordBreak
+	public boolean wordBreakHelper(String s, Set<String> wordDict, Map<String, Boolean> dpMem) {
+		if (dpMem.containsKey(s)) {
+			return dpMem.get(s);
+		}
+		if (wordDict.contains(s)) {
+			dpMem.put(s, true);
+			return true;
+		}
+		if (s.length() == 1) {
+			return wordDict.contains(s);
+		}
+		for (int i = 1; i <= s.length(); i++) {
+			if (wordDict.contains(s.substring(0,i)) && wordBreakHelper(s.substring(i, s.length()), wordDict, dpMem)) {
+				dpMem.put(s, true);
+				return true;
+			}
+		}
+		dpMem.put(s, false);
+		return false;
+	}
+
+	/**
+	 * Problem: Given a word and a dictionary return true if the word can be
+	 * broken up into smaller words that are in the dictionary.
+	 * @param s
+	 * @param wordDict
+	 * @return true if it can, false otherwise
+	 * @url https://leetcode.com/problems/word-break/
+	 */
+	public boolean wordBreak(String s, Set<String> wordDict) {
+		Map<String, Boolean> dpMem = new HashMap<>();
+		return wordBreakHelper(s, wordDict, dpMem);
+	}
+	
+	// Helper function for isInterleave
+	public boolean isInterleaveHelper(String s1, String s2, String s3, int currIndex, Map<String, Map<String, Map<Integer,Boolean>>> dpMem) {
+        if (dpMem.get(s1).get(s2).containsKey(currIndex)) {
+            return dpMem.get(s1).get(s2).get(currIndex);
+        }
+        if (currIndex == s3.length() && s1.isEmpty() && s2.isEmpty()) {
+            dpMem.get(s1).get(s2).put(currIndex, true);
+            return true;
+        } 
+        if (s1.isEmpty()) {
+            boolean initialCheck = s2.charAt(0) == s3.charAt(currIndex);
+            if (initialCheck) {
+                boolean recurCheck = isInterleaveHelper(s1, s2.substring(1,s2.length()), s3, currIndex + 1, dpMem);
+                dpMem.get(s1).get(s2).put(currIndex, recurCheck);
+                return recurCheck;
+            } else {
+                dpMem.get(s1).get(s2).put(currIndex, false);
+                return false;
+            }
+        }
+        if (s2.isEmpty()) {
+            boolean initialCheck = s1.charAt(0) == s3.charAt(currIndex);
+            if (initialCheck) {
+                boolean recurCheck = isInterleaveHelper(s1.substring(1,s1.length()), s2, s3, currIndex + 1, dpMem);
+                dpMem.get(s1).get(s2).put(currIndex, recurCheck);
+                return recurCheck;
+            } else {
+                dpMem.get(s1).get(s2).put(currIndex, false);
+                return false;
+            }
+        }
+        if (s1.charAt(0) == s3.charAt(currIndex) && s2.charAt(0) == s3.charAt(currIndex)) {
+            boolean recurCheckOne = isInterleaveHelper(s1.substring(1,s1.length()), s2, s3, currIndex + 1, dpMem);
+            if (recurCheckOne) {
+                dpMem.get(s1).get(s2).put(currIndex, true);
+                return true;
+            } else {
+                boolean recurCheckTwo = isInterleaveHelper(s1, s2.substring(1,s2.length()), s3, currIndex + 1, dpMem);
+                dpMem.get(s1).get(s2).put(currIndex, recurCheckTwo);
+                return recurCheckTwo;
+            }
+        } else if (s1.charAt(0) == s3.charAt(currIndex)) {
+            boolean recurCheckSOne = isInterleaveHelper(s1.substring(1,s1.length()), s2, s3, currIndex + 1, dpMem);
+            dpMem.get(s1).get(s2).put(currIndex, recurCheckSOne);
+            return recurCheckSOne;
+        } else if (s2.charAt(0) == s3.charAt(currIndex)) {
+            boolean recurCheckSTwo = isInterleaveHelper(s1, s2.substring(1,s2.length()), s3, currIndex + 1, dpMem);
+            dpMem.get(s1).get(s2).put(currIndex, recurCheckSTwo);
+            return recurCheckSTwo;
+        } else {
+            dpMem.get(s1).get(s2).put(currIndex, false);
+            return false;
+        }
+    }
+    
+	/**
+	 * Problem: Given three strings return true if s3 is an interleaving of s1 and s2, false otherwise.
+	 * @param s1
+	 * @param s2
+	 * @param s3
+	 * @return true if condition is true, false otherwise.
+	 * @url https://leetcode.com/problems/interleaving-string/
+	 */
+    public boolean isInterleave(String s1, String s2, String s3) {
+        if (s3.length() != s1.length() + s2.length()) {
+            return false;
+        }
+        Map<String, Map<String, Map<Integer,Boolean>>> dpMem = new HashMap<>();
+        for (int i = 0; i <= s1.length(); i++) {
+            dpMem.put(s1.substring(i,s1.length()), new HashMap<>());
+        }
+        for (String key : dpMem.keySet()) {
+            for (int j = 0; j <= s2.length(); j++) {
+                dpMem.get(key).put(s2.substring(j,s2.length()), new HashMap<>());
+            }
+        }
+        return isInterleaveHelper(s1,s2,s3,0,dpMem);
+    }
+
 	public static void main(String[] args) {
 		/**
 		 * LeetCode handles all of the testing for me. So no

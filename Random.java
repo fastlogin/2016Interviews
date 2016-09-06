@@ -258,6 +258,61 @@ public class Random {
 		subsetSumHelper(result, someSet, new ArrayList<>(), target, 0);
 		return result;
 	}
+	
+	// Class for node for singular Linked List
+	static class Node {
+		int val;
+		Node next;
+		
+		public Node(int value) {
+			this.val = value;
+			this.next = null;
+		}
+		
+		public void setNext(Node someNode) {
+			this.next = someNode;
+		}
+	}
+	
+	// Function to print a Linked List in order
+	static void printLinkedList(Node head) {
+		String acc = "";
+		Node curr = head;
+		while (curr != null) {
+			acc += curr.val + " ";
+			curr = curr.next;
+		}
+		System.out.println(acc);
+	}
+	
+	// Function to create a Linked List out of an array
+	static Node createLinkedList(int[] values) {
+		Node curr = new Node(values[0]);
+		Node head = curr;
+		for (int i = 1; i < values.length; i++) {
+			Node temp = new Node(values[i]);
+			curr.next = temp;
+			curr = curr.next;
+		}
+		return head;
+	}
+	
+	/**
+	 * Problem: Reverse a Linked List in place and return the head
+	 * @param head
+	 * @return the new head
+	 */
+	static Node reverseLinkedList(Node head) {
+		Node curr = null;
+		Node next = head;
+		while (next != null) {
+			Node temp = next.next;
+			next.next = curr;
+			curr = next;
+			next = temp;
+		}
+		return curr;
+	}
 
 	public static void main(String[] args) {
 
@@ -314,5 +369,12 @@ public class Random {
 		// Test cases for subsetSum
 		System.out.println();
 		System.out.println(subsetSum(Arrays.asList(1,2,3,4,-1), 2));
+		
+		// Test cases for basic Linked List stuff
+		System.out.println();
+		int[] values = {1,2,3,4,5,6,7,8};
+		Node linkedList = createLinkedList(values);
+		Node reversed = reverseLinkedList(linkedList);
+		printLinkedList(reversed);
 	}
 }
