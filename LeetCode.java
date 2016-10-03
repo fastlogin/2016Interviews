@@ -864,6 +864,59 @@ public class LeetCode {
         }
         return addDigits(sumDigits);
     }
+    
+    // Helper function for topKFrequent
+    Map<Integer, Integer> initNumToCount(int[] nums) {
+        Map<Integer, Integer> initMap = new HashMap<>();
+        for (int num : nums) {
+            if (initMap.containsKey(num)) {
+                continue;
+            }
+            initMap.put(num, 0);
+        }
+        return initMap;
+    }
+    
+    // Helper function for topKFrequent
+    Map<Integer, Set<Integer>> initCountToNums (int size) {
+        Map<Integer, Set<Integer>> initMap = new HashMap<>();
+        for (int i = 1; i <= size; i++) {
+            initMap.put(i, new HashSet<>());
+        }
+        return initMap;
+    }
+    
+    /**
+     * Problem: Find the k most frequent numbers in an array.
+     * @param nums
+     * @param k
+     * @return the k most frequent numbers in a list
+     * @url https://leetcode.com/problems/top-k-frequent-elements/
+     */
+    public List<Integer> topKFrequent(int[] nums, int k) {
+        Map<Integer, Integer> numToCount = initNumToCount(nums);
+        Map<Integer, Set<Integer>> countToNums = initCountToNums(nums.length);
+        for (int i = 0; i < nums.length; i++) {
+            int currCount = numToCount.get(nums[i]);
+            if (currCount > 0) {
+                countToNums.get(currCount).remove(nums[i]);
+            }
+            countToNums.get(currCount + 1).add(nums[i]);
+            numToCount.put(nums[i],currCount+1);
+        }
+        List<Integer> result = new ArrayList<>();
+        outer:
+        for (int j = nums.length; j >= 1; j--) {
+            for (Integer num : countToNums.get(j)) {
+                if (k == 0) {
+                    break outer;
+                }
+                result.add(num);
+                k--;
+            }
+        }
+        return result;
+    }
 
 	public static void main(String[] args) {
 		/**
