@@ -2,9 +2,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -582,6 +584,285 @@ public class LeetCode {
             }
         }
         return isInterleaveHelper(s1,s2,s3,0,dpMem);
+    }
+    
+    // Class for a node in a Trie
+    class TrieNode {
+        Boolean val;
+        Map<Character, TrieNode> children;
+        
+        public TrieNode() {
+            this.val = null;
+            this.children = new HashMap<>();
+        }
+            
+        public TrieNode(Boolean val) {
+            this.val = val;
+            this.children = new HashMap<>();
+        }
+        
+    }
+
+    /**
+     * Problem: Implement a trie
+     * @author George
+     * @url https://leetcode.com/problems/implement-trie-prefix-tree/
+     */
+    public class Trie {
+        private TrieNode root;
+
+        public Trie() {
+            root = new TrieNode();
+        }
+        
+        public void insertHelper(String word, TrieNode currNode, int currIndex) {
+            if (currIndex >= word.length()) {
+                currNode.val = true;
+                return;
+            }
+            if (currNode.children.containsKey(word.charAt(currIndex))) {
+                insertHelper(word, currNode.children.get(word.charAt(currIndex)), currIndex + 1);
+            } else {
+                TrieNode newNode = new TrieNode(false);
+                currNode.children.put(word.charAt(currIndex), newNode);
+                insertHelper(word, newNode, currIndex + 1);
+            }
+        }
+
+        // Inserts a word into the trie.
+        public void insert(String word) {
+            insertHelper(word, root, 0);
+        }
+        
+        public boolean searchHelper(String word, TrieNode currNode, int currIndex) {
+            if (currIndex >= word.length()) {
+                return currNode.val;
+            }
+            if (currNode.children.containsKey(word.charAt(currIndex))) {
+                return searchHelper(word, currNode.children.get(word.charAt(currIndex)), currIndex + 1);
+            } else {
+                return false;
+            }
+        }
+
+        // Returns if the word is in the trie.
+        public boolean search(String word) {
+            return searchHelper(word, root, 0);
+        }
+        
+        public boolean startsWithHelper(String word, TrieNode currNode, int currIndex) {
+            if (currIndex >= word.length()) {
+                return true;
+            }
+            if (currNode.children.containsKey(word.charAt(currIndex))) {
+                return startsWithHelper(word, currNode.children.get(word.charAt(currIndex)), currIndex + 1);
+            } else {
+                return false;
+            }
+        }
+
+        // Returns if there is any word in the trie
+        // that starts with the given prefix.
+        public boolean startsWith(String prefix) {
+            return startsWithHelper(prefix, root, 0);
+        }
+    }
+    
+    // Class to represent an updated state for gameOfLife
+    class updatedCoor {
+        int state;
+        int x;
+        int y;
+        public updatedCoor(int state, int x, int y) {
+            this.state = state;
+            this.x = x;
+            this.y = y;
+        }
+    }
+    
+    // Helper function for gameOfLife
+    public updatedCoor getUpdate(int[][] board, int xCor, int yCor) {
+        int numLiveNeighbors = 0;
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                int xCorD = xCor + i;
+                int yCorD = yCor + j;
+                if (xCorD >= 0 && 
+                    xCorD < board.length && 
+                    yCorD >= 0 && 
+                    yCorD < board[0].length) {
+                    if (board[xCorD][yCorD] == 1) {
+                        numLiveNeighbors++;   
+                    }
+                }
+            }
+        }
+        int updatedState = 0;
+        if (board[xCor][yCor] == 1) {
+            if (numLiveNeighbors == 2 || numLiveNeighbors == 3) {
+                updatedState = 1;
+            }
+        } else {
+            if (numLiveNeighbors == 3) {
+                updatedState = 1;
+            }
+        }
+        return new updatedCoor(updatedState, xCor, yCor);
+    }
+    
+    /**
+     * Problem: Write an updated board for Game of Life
+     * @param board
+     * @return nothing, update the board
+     * @url https://leetcode.com/problems/game-of-life/
+     */
+    public void gameOfLife(int[][] board) {
+        List<updatedCoor> updatedCoors = new ArrayList<>();
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                updatedCoors.add(getUpdate(board, i, j));
+            }
+        }
+        for (updatedCoor coor : updatedCoors) {
+            board[coor.x][coor.y] = coor.state;
+        }
+    }
+    
+    // Set of arithmetic operators
+    public final Set<String> operators = new HashSet<>(Arrays.asList("+", "-", "/", "*"));
+
+    /**
+     * Problem: Evaluate Reverse Polish Notation
+     * @param tokens
+     * @return resulting integer
+     * @url https://leetcode.com/problems/evaluate-reverse-polish-notation/
+     */
+    public int evalRPN(String[] tokens) {
+        Stack<Integer> operands = new Stack<>();
+        for (int i = 0; i < tokens.length; i++) {
+            if (operators.contains(tokens[i])) {
+                if (operands.size() < 2) {
+                    return -1;
+                }
+                int b = operands.pop();
+                int a = operands.pop();
+                if (tokens[i].equals("+")) {
+                    operands.push(a + b);
+                }
+                if (tokens[i].equals("-")) {
+                    operands.push(a - b);
+                }
+                if (tokens[i].equals("/")) {
+                    operands.push(a / b);
+                }
+                if (tokens[i].equals("*")) {
+                    operands.push(a * b);
+                }
+            } else {
+                operands.push(Integer.parseInt(tokens[i]));
+            }
+        }
+        if (operands.isEmpty()) {
+            return -1;
+        }
+        return operands.pop();
+    }
+    
+    /**
+     * Check if two strings are anagrams, no memory
+     * @param s
+     * @param t
+     * @return true if they are anagrams, false otherwise
+     * @url https://leetcode.com/problems/valid-anagram/
+     */
+    public boolean isAnagram(String s, String t) {
+        char[] sSorted = s.toCharArray();
+        char[] tSorted = t.toCharArray();
+        Arrays.sort(sSorted);
+        Arrays.sort(tSorted);
+        return Arrays.equals(sSorted, tSorted);
+    }
+    
+    // Helper function for maxDepth
+    public int maxDepthHelper(TreeNode root, int currDepth) {
+        if (root == null) {
+            return currDepth;
+        }
+        return Math.max(maxDepthHelper(root.left, currDepth + 1), maxDepthHelper(root.right, currDepth+1));
+    }
+    
+    /**
+     * Problem: Find maximum depth in a binary tree
+     * @param root
+     * @return the max depth
+     * @url https://leetcode.com/problems/maximum-depth-of-binary-tree/
+     */
+    public int maxDepth(TreeNode root) {
+        return maxDepthHelper(root, 0);
+    }
+    
+    /**
+     * Problem: Given an array with possible duplicates return a random index of a target number.
+     * @param arr
+     * @param target
+     * @return random index of target in arr
+     * @url https://leetcode.com/problems/random-pick-index/
+     */
+    public int pick(int[] arr, int target) {
+        List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == target) {
+                if (Math.random() < 0.5) {
+                    return i;
+                } else {
+                    indices.add(i);
+                }
+            }
+        }
+        return indices.get((int)(Math.random() * indices.size()));
+    }
+    
+    /**
+     * Problem: Powerset
+     * @param nums
+     * @return powerset of nums
+     * @url https://leetcode.com/problems/subsets/
+     */
+    public List<List<Integer>> subsets(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (nums.length == 0) {
+            result.add(new ArrayList<>());
+            return result;
+        }
+        List<List<Integer>> recurRes = subsets(Arrays.copyOfRange(nums,1,nums.length));
+        for (List<Integer> subset : recurRes) {
+            List<Integer> subsetAdded = new ArrayList<>(subset);
+            subsetAdded.add(nums[0]);
+            result.add(subset);
+            result.add(subsetAdded);
+        }
+        return result;
+    }
+    
+    /**
+     * Problem: Given a number num keep adding the digits until there is only one digit left over.
+     * @param num
+     * @return new number
+     * @url https://leetcode.com/problems/add-digits/
+     */
+    public int addDigits(int num) {
+        if (num < 10) {
+            return num;
+        }
+        String numS = Integer.toString(num);
+        int sumDigits = 0;
+        for (int i = 0; i < numS.length(); i++) {
+            sumDigits += (int)(numS.charAt(i) - '0');
+        }
+        return addDigits(sumDigits);
     }
 
 	public static void main(String[] args) {

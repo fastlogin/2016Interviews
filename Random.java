@@ -364,7 +364,7 @@ public class Random {
 
 		// Test cases for makeChangeMinCoins
 		System.out.println();
-		System.out.println(makeChangeMinCoins(420));
+		System.out.println(makeChangeMinCoins(42069));
 
 		// Test cases for subsetSum
 		System.out.println();
