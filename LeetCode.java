@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -917,6 +918,61 @@ public class LeetCode {
         }
         return result;
     }
+    
+    class coor {
+        int x;
+        int y;
+        public coor (int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+             return Objects.equals(((coor)obj).x, x)
+                && Objects.equals(((coor)obj).y, y);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y);
+        }
+    }
+    
+    int findMinPathDFS(List<List<Integer>> triangle, Map<coor, Set<coor>> graph, coor node, int[][] dpMem) {
+        if (dpMem[node.x][node.y] != 0) {
+            return dpMem[node.x][node.y];
+        }
+        if (!graph.containsKey(node)) {
+            return triangle.get(node.x).get(node.y);
+        }
+        int min = Integer.MAX_VALUE - 1;
+        for (coor neighbor : graph.get(node)) {
+            min = Math.min(min, triangle.get(node.x).get(node.y) + findMinPathDFS(triangle,graph,neighbor,dpMem));
+        }
+        dpMem[node.x][node.y] = min;
+        return min;
+    }
+    
+    public int minimumTotal(List<List<Integer>> triangle) {
+        if (triangle.size() == 1) {
+            return triangle.get(0).get(0);
+        }
+        Map<coor, Set<coor>> triangleGraph = new HashMap<>();
+        for (int i = 0; i < triangle.size() - 1; i++) {
+            List<Integer> currRow = triangle.get(i);
+            for (int j = 0; j < currRow.size(); j++) {
+                coor currNode = new coor(i,j);
+                triangleGraph.put(currNode, new HashSet<>());
+                for (int k = j; k < j + 2; k++) {
+                    coor nextNode = new coor(i+1,k);
+                    triangleGraph.get(currNode).add(nextNode);
+                }
+            }
+        }
+        int[][] dpMem = new int[triangle.size()+1][triangle.size()+1];
+        return findMinPathDFS(triangle, triangleGraph, new coor(0,0), dpMem);
+    }
 
 	public static void main(String[] args) {
 		/**
@@ -924,18 +980,5 @@ public class LeetCode {
 		 * final functions will be tested here. Only helper functions
 		 * will be tested.
 		 */
-
-		// Test Case for Binary Search
-		int[] binarySearchTest = new int[] { 0, 2, 4, 6, 8, 10, 12, 14, 16};
-		System.out.println(binarySearch(binarySearchTest, 0, 0, binarySearchTest.length));
-		System.out.println(binarySearch(binarySearchTest, 2, 0, binarySearchTest.length));
-		System.out.println(binarySearch(binarySearchTest, 4, 0, binarySearchTest.length));
-		System.out.println(binarySearch(binarySearchTest, 6, 0, binarySearchTest.length));
-		System.out.println(binarySearch(binarySearchTest, 8, 0, binarySearchTest.length));
-		System.out.println(binarySearch(binarySearchTest, 10, 0, binarySearchTest.length));
-		System.out.println(binarySearch(binarySearchTest, 12, 0, binarySearchTest.length));
-		System.out.println(binarySearch(binarySearchTest, 14, 0, binarySearchTest.length));
-		System.out.println(binarySearch(binarySearchTest, 16, 0, binarySearchTest.length));
-		System.out.println(binarySearch(binarySearchTest, 9, 0, binarySearchTest.length));
 	}
 }
