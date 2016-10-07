@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -919,6 +920,7 @@ public class LeetCode {
         return result;
     }
     
+    // Coordinate class for triangle min path question.
     class coor {
         int x;
         int y;
@@ -939,6 +941,7 @@ public class LeetCode {
         }
     }
     
+    // Helper function for minimumTotal
     int findMinPathDFS(List<List<Integer>> triangle, Map<coor, Set<coor>> graph, coor node, int[][] dpMem) {
         if (dpMem[node.x][node.y] != 0) {
             return dpMem[node.x][node.y];
@@ -954,6 +957,12 @@ public class LeetCode {
         return min;
     }
     
+    /**
+     * Given a triangle, find the minimum sum path from tip to base.
+     * @param triangle
+     * @return the sum of the minimum sum path.
+     * @url https://leetcode.com/problems/triangle/
+     */
     public int minimumTotal(List<List<Integer>> triangle) {
         if (triangle.size() == 1) {
             return triangle.get(0).get(0);
@@ -972,6 +981,183 @@ public class LeetCode {
         }
         int[][] dpMem = new int[triangle.size()+1][triangle.size()+1];
         return findMinPathDFS(triangle, triangleGraph, new coor(0,0), dpMem);
+    }
+    
+    /**
+     * Problem: Return the index of needle in haystack
+     * @param haystack
+     * @param needle
+     * @return the index
+     * @url https://leetcode.com/problems/implement-strstr/
+     */
+    public int strStr(String haystack, String needle) {
+        return haystack.indexOf(needle);
+    }
+    
+    // Helper function for numDecodings
+    public int numDecodingsHelper(String s, int currIndex, int[] dpMem) {
+        if (dpMem[currIndex] != 0) {
+            return dpMem[currIndex];
+        }
+        if (currIndex == s.length()) {
+            return 1;
+        }
+        int result = 0;
+        if (s.charAt(currIndex) != '0') {
+            result += numDecodingsHelper(s, currIndex + 1, dpMem);
+        }
+        if (currIndex <= s.length() - 2 && 
+            Integer.parseInt(s.substring(currIndex,currIndex+2)) <= 26 && 
+            Integer.parseInt(s.substring(currIndex,currIndex+2)) > 9) {
+            result += numDecodingsHelper(s, currIndex + 2, dpMem);
+        }
+        dpMem[currIndex] = result;
+        return result;
+    }
+    
+    /**
+     * Given that a number can map to a letter, 1->A, 26->Z, given a sequence of numbers return the number of ways to decode it into letters
+     * @param s
+     * @return number of ways
+     * @url https://leetcode.com/problems/decode-ways/
+     */
+    public int numDecodings(String s) {
+        if (s.isEmpty()) {
+            return 0;
+        }
+        int[] dpMem = new int[s.length() + 1];
+        return numDecodingsHelper(s, 0, dpMem);
+    }
+    
+    /**
+     * Definition for singly-linked list.
+     * public class ListNode {
+     *     int val;
+     *     ListNode next;
+     *     ListNode(int x) { val = x; }
+     * }
+     */
+    /**
+     * Problem: Given a pointer to a node in a singly linked list, delete it.
+     * @param node
+     * @url https://leetcode.com/problems/delete-node-in-a-linked-list/
+     */
+    public void deleteNode(ListNode node) {
+        node.val = node.next.val;
+        node.next = node.next.next;
+    }
+    
+    // Helper function for levelOrderBottom
+    void levelOrderBottomHelper(TreeNode node, int currDepth, Map<Integer, List<Integer>> depthMap) {
+        if (!depthMap.containsKey(currDepth)) {
+            depthMap.put(currDepth, new ArrayList<>());
+        }
+        depthMap.get(currDepth).add(node.val);
+        if (node.left != null) {
+            levelOrderBottomHelper(node.left, currDepth+1, depthMap);
+        }
+        if (node.right != null) {
+            levelOrderBottomHelper(node.right, currDepth+1, depthMap);
+        }
+    }
+    
+    /**
+     * Problem: Return the bottom up left to right representation of a tree.
+     * @param root
+     * @return list of lists ordered from bottom to up inside each list from left to right.
+     * @url https://leetcode.com/problems/binary-tree-level-order-traversal-ii/
+     */
+    public List<List<Integer>> levelOrderBottom(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) {
+            return result;
+        }
+        Map<Integer, List<Integer>> depthMap = new HashMap<>();
+        levelOrderBottomHelper(root, 0, depthMap);
+        List<Integer> depths = new ArrayList<>(depthMap.keySet());
+        Collections.sort(depths);
+        Collections.reverse(depths);
+        for (Integer depth: depths) {
+            result.add(depthMap.get(depth));
+        }
+        return result;
+    }
+    
+    // Helper function for isPalindrome that reverses a singly linked list.
+    ListNode reverseLinkedList(ListNode head) {
+        ListNode curr = null;
+        ListNode currNode = head;
+        while (currNode != null) {
+            ListNode temp = currNode.next;
+            currNode.next = curr;
+            curr = currNode;
+            currNode = temp;
+        }
+        return curr;
+    }
+    
+    /**
+     * Problem: Given a singly linked list, check if it is a palindrome in O(n) time and O(1) memory.
+     * @param head
+     * @return true if is palindrome, false otherwise.
+     * @url https://leetcode.com/problems/palindrome-linked-list/
+     */
+    public boolean isPalindrome(ListNode head) {
+        int size = 0;
+        ListNode curr = head;
+        while (curr != null) {
+            size++;
+            curr = curr.next;
+        }
+        int mid = size / 2;
+        ListNode right = head;
+        while (mid > 0) {
+            right = right.next;
+            mid--;
+        }
+        if (size % 2 != 0) {
+            right = right.next;
+        }
+        right = reverseLinkedList(right);
+        int halfSize = size / 2;
+        boolean ans = true;
+        while (halfSize > 0) {
+            ans = ans && head.val == right.val;
+            head = head.next;
+            right = right.next;
+            halfSize--;
+        }
+        return ans;
+    }
+    
+    /**
+     * Problem: Given an array, write a function to able to return range sum queries from it. The array is immutable.
+     * @author George
+     * @url https://leetcode.com/problems/range-sum-query-immutable/
+     */
+    public class NumArray {
+
+        int[] nums;
+        Map<Integer, Integer> memory;
+        
+        public NumArray(int[] nums) {
+            this.nums = nums;
+            this.memory = new HashMap<>();
+            int res = 0;
+            for (int i = 0; i < nums.length; i++) {
+                res += nums[i];
+                memory.put(i,res);
+            }
+        }
+
+        public int sumRange(int i, int j) {
+            if (i == 0) {
+                return memory.get(j);
+            }
+            int left = i-1;
+            int right = j;
+            return memory.get(right) - memory.get(left);
+        }
     }
 
 	public static void main(String[] args) {
