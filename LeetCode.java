@@ -1160,6 +1160,144 @@ public class LeetCode {
         }
     }
 
+    // Class to represent a linked list tree node.
+    public class TreeLinkNode {
+         int val;
+         TreeLinkNode left, right, next;
+         TreeLinkNode(int x) { val = x; }
+    }
+    
+    // Helper function for connect
+    void connectHelper(TreeLinkNode curr, Map<Integer, List<TreeLinkNode>> depthMap, int currDepth) {
+        if (!depthMap.containsKey(currDepth)) {
+            depthMap.put(currDepth, new ArrayList<>());
+        }
+        depthMap.get(currDepth).add(curr);
+        if (curr.left != null) {
+            connectHelper(curr.left, depthMap, currDepth+1);
+        }
+        if (curr.right != null) {
+            connectHelper(curr.right, depthMap, currDepth+1);
+        }
+    }
+    
+    /**
+     * Problem: Given a balanced binary tree, populate the next pointer for each node.
+     * @param root
+     * @url https://leetcode.com/problems/populating-next-right-pointers-in-each-node/
+     */
+    public void connect(TreeLinkNode root) {
+        if (root == null) {
+            return;
+        }
+        Map<Integer, List<TreeLinkNode>> depthMap = new HashMap<>();
+        connectHelper(root, depthMap, 0);
+        for (Integer depth: depthMap.keySet()) {
+            List<TreeLinkNode> nodesAtDepth = depthMap.get(depth);
+            for (int i = 0; i < nodesAtDepth.size() - 1; i++) {
+                nodesAtDepth.get(i).next = nodesAtDepth.get(i+1);
+            }
+            nodesAtDepth.get(nodesAtDepth.size()-1).next = null;
+        }
+    }
+    
+    // Helper function for sumOfLeftLeaves
+    public int sumOfLeftLeavesHelper(TreeNode root) {
+        int res = 0;
+        
+        if (root.left == null && root.right == null) {
+            res += root.val;
+        }
+        if (root.left != null) {
+            res += sumOfLeftLeavesHelper(root.left);
+        }
+        if (root.right != null) {
+            if (root.right.left != null || root.right.right != null) {
+                res += sumOfLeftLeavesHelper(root.right);
+            }
+        }
+        return res;
+    }
+    
+    /**
+     * Problem: Given a tree just sum all of the left leaves.
+     * @param root
+     * @return the sum of all the left leaves
+     * @url https://leetcode.com/problems/sum-of-left-leaves/
+     */
+    public int sumOfLeftLeaves(TreeNode root) {
+        if (root == null || (root.left == null && root.right == null)) {
+            return 0;
+        }
+        return sumOfLeftLeavesHelper(root);
+    }
+    
+    /**
+     * Problem: Implement a class that supports adding words and searching words but when searching words '.'
+     * is a wild card character that can be substituted for any letter.
+     * @author George
+     * @url https://leetcode.com/problems/add-and-search-word-data-structure-design/
+     */
+    public class WordDictionary {
+        
+    	// Class for a trie that only has an add function.
+        class TrieNode {
+            boolean contains;
+            Map<Character, TrieNode> children;
+            
+            public TrieNode() {
+                this.contains = false;
+                this.children = new HashMap<>();
+            }
+            
+            void add(String word, int currIndex) {
+                if (currIndex == word.length()) {
+                    this.contains = true;
+                    return;
+                }
+                if (!children.containsKey(word.charAt(currIndex))) {
+                    children.put(word.charAt(currIndex), new TrieNode());
+                }
+                children.get(word.charAt(currIndex)).add(word, currIndex+1);
+            }
+        }
+        
+        // Root for our trie
+        TrieNode root = new TrieNode();
+
+        // Adds a word into the data structure.
+        public void addWord(String word) {
+            root.add(word, 0);
+        }
+        
+        // Helper function for search.
+        boolean searchHelper(String word, TrieNode currNode, int currIndex) {
+            boolean ans = false;
+            if (currIndex == word.length()) {
+                return currNode.contains;
+            }
+            if (currNode.children.isEmpty()) {
+                return false;
+            }
+            if (word.charAt(currIndex) == '.') {
+                for (Character nextLetter : currNode.children.keySet()) {
+                    ans = ans || searchHelper(word, currNode.children.get(nextLetter), currIndex+1);
+                }
+            } else if (currNode.children.containsKey(word.charAt(currIndex))) {
+                ans = ans || searchHelper(word, currNode.children.get(word.charAt(currIndex)), currIndex+1);
+            } else {
+                return false;
+            }
+            return ans;
+        }
+
+        // Returns if the word is in the data structure. A word could
+        // contain the dot character '.' to represent any one letter.
+        public boolean search(String word) {
+            return searchHelper(word, root, 0);
+        }
+    }
+
 	public static void main(String[] args) {
 		/**
 		 * LeetCode handles all of the testing for me. So no
