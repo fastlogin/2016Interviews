@@ -1297,6 +1297,49 @@ public class LeetCode {
             return searchHelper(word, root, 0);
         }
     }
+    
+    // Helper function for rob
+    public int robHelper(TreeNode curr, boolean robbedParent) {
+        int ans = 0;
+        if (curr == null) {
+            return ans;
+        }
+        if (curr.left == null && curr.right == null) {
+            if (!robbedParent) {
+                return curr.val;
+            } else {
+                return 0;
+            }
+        }
+        if (curr.left != null && curr.right !=null) {
+            ans = robHelper(curr.left, false) + robHelper(curr.right, false);
+            if (!robbedParent) {
+                ans = Math.max(ans, curr.val + robHelper(curr.left,true) + robHelper(curr.right,true));
+            }
+        } else if (curr.left != null) {
+            ans = robHelper(curr.left, false);
+            if (!robbedParent) {
+                ans = Math.max(ans, curr.val + robHelper(curr.left,true));
+            }
+        } else {
+            ans = robHelper(curr.right, false);
+            if (!robbedParent) {
+                ans = Math.max(ans, curr.val + robHelper(curr.right,true));
+            }
+        }
+        return ans;
+    }
+    
+    /**
+     * Problem: Given a thief wants to rob a binary tree house neighborhood but cannot rob houses
+     * that are directly linked, what is the max amount of money the theif can make out with?
+     * @param root
+     * @return the maximum amount of money
+     * @url https://leetcode.com/problems/house-robber-iii/
+     */
+    public int rob(TreeNode root) {
+        return robHelper(root, false);
+    }
 
 	public static void main(String[] args) {
 		/**
