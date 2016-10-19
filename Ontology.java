@@ -35,14 +35,17 @@ import java.util.*;
  */
 public class Ontology {
 	
-		class TopicTreeNode {
+		static class TopicTreeNode {
 			
 			String topic;
 			Set<String> questions;
 			List<TopicTreeNode> children;
 			TopicTreeNode parent;
 			
-			public TopicTreeNode(String topic, TopicTreeNode parent) {
+			public TopicTreeNode(
+					String topic, 
+					TopicTreeNode parent) 
+			{
 				this.topic = topic;
 				questions = new HashSet<>();
 				children = new ArrayList<>();
@@ -59,13 +62,140 @@ public class Ontology {
 			}
 		}
 		
+		static List<String> processChildrenTrees(String flattenedTree) {
+			List<String> childrenTrees = new ArrayList<>();
+			Stack<Character> paranthesesMatching = new Stack<>();
+			int prevSpaceIndex = 0;
+			for (int i = 0; i < flattenedTree.length(); i++) {
+				if (paranthesesMatching.isEmpty() && 
+					flattenedTree.charAt(i) == ' ') {
+					childrenTrees.add(flattenedTree.substring(prevSpaceIndex, i));
+					prevSpaceIndex = i+1;
+				}
+				if (flattenedTree.charAt(i) == '(') {
+					paranthesesMatching.push(flattenedTree.charAt(i));
+				}
+				if (flattenedTree.charAt(i) == ')') {
+					paranthesesMatching.pop();
+				}
+			}
+			childrenTrees.add(flattenedTree.substring(prevSpaceIndex));
+			return childrenTrees;
+		}
+		
+		static TopicTreeNode buildTopicOntologyTreeHelper(
+				TopicTreeNode parent, 
+				String flattenedSubTree, 
+				Map<String, TopicTreeNode> linkedTopicTreeMap) 
+		{
+			
+			String topic;
+			List<TopicTreeNode> children = new ArrayList<>();
+			List<String> childrenTrees = new ArrayList<>();
+			
+			int indexBeforeChildren = flattenedSubTree.indexOf('(');
+			if (indexBeforeChildren == -1) {
+				topic = flattenedSubTree;
+			} else {
+				topic = flattenedSubTree.substring(0, indexBeforeChildren);
+				String childrenFlattenedTree = 
+						flattenedSubTree.substring(indexBeforeChildren+2, flattenedSubTree.length()-2);
+				childrenTrees = processChildrenTrees(childrenFlattenedTree);	
+			}
+			TopicTreeNode node = new TopicTreeNode(topic, parent);
+			if (!childrenTrees.isEmpty()) {
+				for (String childTree : childrenTrees) {
+					children.add(buildTopicOntologyTreeHelper(node, childTree, linkedTopicTreeMap));
+				}
+			}
+			node.children = children;
+			linkedTopicTreeMap.put(topic, node);
+			return node;
+		}
+		
+		// Animals( Reptiles Birds( Eagles Pigeons Crows ) )
+		// Animals -> ( Reptiles Birds( Eagles Pigeons Crows ) )
 		static Map<String, TopicTreeNode> buildTopicOntology(String flattenedTree) {
 			Map<String, TopicTreeNode> linkedTopicTreeMap = new HashMap<>();
+			flattenedTree = flattenedTree.replace(" (", "(");
+			buildTopicOntologyTreeHelper(null, flattenedTree, linkedTopicTreeMap);
 			return linkedTopicTreeMap;
 		}
 		
+		static void addQuestionToTopic(
+				Map<String, TopicTreeNode> topicOntologyLinkedTree,
+				String topicQuestion) 
+		{
+			int indexOfColon = topicQuestion.indexOf(':');
+			String topic = topicQuestion.substring(0,indexOfColon);
+			String question = topicQuestion.substring(indexOfColon+2);
+			topicOntologyLinkedTree.get(topic).addQuestion(question);
+		}
+		
+		static int processQuery(
+				Map<String, TopicTreeNode> topicOntologyLinkedTree,
+				String query) 
+		{
+			int indexOfSpace = query.indexOf(' ');
+			String topic = query.substring(0,indexOfSpace);
+			String questionPrefix = query.substring(indexOfSpace+1);
+			
+			int queryCount = 0;		
+			for (String question : topicOntologyLinkedTree.get(topic).questions) {
+				if (question.startsWith(questionPrefix)) {
+					queryCount++;
+				}
+			}
+			return queryCount;
+		}
+		
+		static List<Integer> doOntology (
+				String flattenedTree, 
+				List<String> questions, 
+				List<String> queries) 
+		{
+			List<Integer> queryResults = new ArrayList<>();
+			Map<String, TopicTreeNode> topicOntology = buildTopicOntology(flattenedTree);
+			for (String question: questions) {
+				addQuestionToTopic(topicOntology, question);
+			}
+			for (String query: queries) {
+				queryResults.add(processQuery(topicOntology, query));
+			}
+			return queryResults;
+		}
 
 		public static void main(String[] args) {
-			System.out.println("Hello World!");
+			String testProcessChildren1 = "Reptiles Birds( Eagles Pigeons Crows )";
+			String testProcessChildren2 = "Reptiles Birds Eagles Monkeys Hippos";
+			String testProcessChildren3 = 
+					"Reptiles Birds Eagles Monkeys Hippos( Bats Lemurs( Dogs Cats ) )";
+			String testProcessChildren4 = 
+					"Reptiles( Bats Lemurs( Dogs Cats ) ) Birds Eagles Monkeys Hippos( Bats Lemurs( Dogs Cats ) )";
+			String testProcessChildren5 = "Animals( Reptiles Birds( Eagles Pigeons Crows ) )";
+			System.out.println(processChildrenTrees(testProcessChildren1));
+			System.out.println(processChildrenTrees(testProcessChildren2));
+			System.out.println(processChildrenTrees(testProcessChildren3));
+			System.out.println(processChildrenTrees(testProcessChildren4));
+			System.out.println(processChildrenTrees(testProcessChildren5));
+			
+			System.out.println();
+			System.out.println(buildTopicOntology("Animals ( Reptiles Birds ( Eagles Pigeons Crows ) )"));
+			
+			System.out.println();
+			String flattenedTree = "Animals ( Reptiles Birds ( Eagles Pigeons Crows ) )";
+			List<String> questions = Arrays.asList(
+					"Reptiles: Why are many reptiles green?",
+					"Birds: How do birds fly?",
+					"Eagles: How endangered are eagles?",
+					"Pigeons: Where in the world are pigeons most densely populated?",
+					"Eagles: Where do most eagles live?");
+			List<String> queries = Arrays.asList(
+					"Eagles How en",
+					"Birds Where",
+					"Reptiles Why do",
+					"Animals Wh");
+			System.out.println(doOntology(flattenedTree, questions, queries));
+			
 		}
 }
