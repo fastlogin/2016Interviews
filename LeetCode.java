@@ -1340,6 +1340,100 @@ public class LeetCode {
     public int rob(TreeNode root) {
         return robHelper(root, false);
     }
+    
+    /**
+     * Problem: Given array of colors, red = 0, white = 1, blue = 2, sort the colors in place.
+     * @param nums
+     * @url https://leetcode.com/problems/sort-colors/
+     */
+    public void sortColors(int[] nums) {
+        int redCount = 0;
+        int whiteCount = 0;
+        int blueCount = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] == 0) {
+                redCount++;
+            } else if (nums[i] == 1) {
+                whiteCount++;
+            } else {
+                blueCount++;
+            }
+        }
+        int index = 0;
+        for (int j = 0; j < redCount; j++) {
+            nums[index] = 0;
+            index++;
+        }
+        for (int k = 0; k < whiteCount; k++) {
+            nums[index] = 1;
+            index++;
+        }
+        for (int l = 0; l < blueCount; l++) {
+            nums[index] = 2;
+            index++;
+        }
+    }
+    
+    /**
+     * Problem: Given an array of wall heights, that are i distance apart, find the container with the max area
+     * @param height
+     * @return the max area
+     * @url https://leetcode.com/submissions/detail/81891601/
+     */
+    public int maxArea(int[] height) {
+        int leftHeight = 0;
+        int rightHeight = height.length-1;
+        int currMaxArea = 0;
+        outer:
+        while (leftHeight < rightHeight) {
+            int bottleneckHeight = Math.min(height[leftHeight], height[rightHeight]);
+            if (bottleneckHeight * (rightHeight - leftHeight) > currMaxArea) {
+                currMaxArea = bottleneckHeight * (rightHeight - leftHeight);
+            }
+            if (height[leftHeight] < height[rightHeight]) {
+                int nextLeftHeight = leftHeight;
+                while (nextLeftHeight < rightHeight && height[leftHeight] >= height[nextLeftHeight]) {
+                    nextLeftHeight++;
+                }
+                if (nextLeftHeight >= rightHeight) {
+                    break outer;
+                } else {
+                    leftHeight = nextLeftHeight;
+                }
+            } else {
+                int nextRightHeight = rightHeight;
+                while (nextRightHeight > leftHeight && height[rightHeight] >= height[nextRightHeight]) {
+                    nextRightHeight--;
+                }
+                if (nextRightHeight <= leftHeight) {
+                    break outer;
+                } else {
+                    rightHeight = nextRightHeight;
+                }
+            }
+        }
+        return currMaxArea;
+    }
+    
+    /**
+     * Problem: Remove element val from the array and return the new size of the array.
+     * @param nums
+     * @param val
+     * @return new size of the array
+     */
+    public int removeElement(int[] nums, int val) {
+        int lastNonVal = 0;
+        int valCount = 0;
+        for (int i = 0; i < nums.length; i++) {
+                nums[lastNonVal] = nums[i];
+                if (nums[i] == val) {
+                    valCount++;
+                } else {
+                    lastNonVal++;
+                }
+        }
+        return nums.length-valCount;
+    }
 
 	public static void main(String[] args) {
 		/**
@@ -1347,5 +1441,6 @@ public class LeetCode {
 		 * final functions will be tested here. Only helper functions
 		 * will be tested.
 		 */
+		System.out.println((-32) % 10);
 	}
 }
