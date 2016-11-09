@@ -1558,6 +1558,52 @@ public class LeetCode {
             return minValue;
         }
     }
+    
+    // Helper function for canCross
+    public boolean canCrossHelper(int[] stones, int currPos, int k, Boolean[][] dpMem) {
+        if (currPos >= stones.length-1) {
+            return true;
+        }
+        if (dpMem[currPos][k] != null) {
+            return dpMem[currPos][k];
+        }
+        boolean canDoIt = false;
+        for (int i = -1; i <= 1; i++) {
+            int nextK = k + i;
+            if (nextK <= 0) {
+                continue;
+            }
+            int nextPos = currPos;
+            while (nextPos < stones.length && stones[nextPos] < stones[currPos] + nextK) {
+                nextPos++;
+            }
+            if (nextPos == stones.length) {
+                nextPos--;
+            }
+            if (stones[nextPos] == stones[currPos] + nextK) {
+                canDoIt = canDoIt || canCrossHelper(stones, nextPos, nextK, dpMem);
+            }
+        }
+        dpMem[currPos][k] = canDoIt;
+        return canDoIt;
+    }
+    
+    /**
+     * Problem: Given stones can a frog make it past with k-1,k, or k+1 jumps where
+     * k is the previous jump
+     * @param stones
+     * @return true if frog can, false otherwise
+     * @url https://leetcode.com/problems/frog-jump/
+     */
+    public boolean canCross(int[] stones) {
+        if (stones.length > 1) {
+            if (stones[1] > 1) {
+                return false;
+            }
+        }
+        Boolean[][] dpMem = new Boolean[stones.length+1][stones.length*2+1];
+        return canCrossHelper(stones, 1, 1, dpMem);
+    }
 
 	public static void main(String[] args) {
 		/**
