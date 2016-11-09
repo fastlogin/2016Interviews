@@ -1416,7 +1416,7 @@ public class LeetCode {
     }
     
     /**
-     * Problem: Remove element val from the array and return the new size of the array.
+     * Problem: Remove element val from the array and returnt the new size of the array.
      * @param nums
      * @param val
      * @return new size of the array
@@ -1433,6 +1433,130 @@ public class LeetCode {
                 }
         }
         return nums.length-valCount;
+    }
+    
+    // Helper function for isSymmetric
+    public boolean isSymmetricHelper(TreeNode left, TreeNode right) {
+        if (left == null) {
+            return right == null;
+        } else if (right == null) {
+            return left == null;
+        }
+        if (left.val != right.val) {
+            return false;
+        }
+        return isSymmetricHelper(left.left, right.right) && isSymmetricHelper(left.right, right.left);
+        
+    }
+    
+    /**
+     * Problem: Check if a tree is symmetrical down its middle.
+     * @param root
+     * @return true if it is symmetrical, false otherwise.
+     * @url https://leetcode.com/problems/symmetric-tree/
+     */
+    public boolean isSymmetric(TreeNode root) {
+        if (root == null) {
+            return true;
+        }
+        return isSymmetricHelper(root.left, root.right);
+    }
+    
+    /**
+     * Problem: Remove duplicates from a sorted list where there can be at most 2 copies, return the new length.
+     * @param nums
+     * @return the new length
+     * @url https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/
+     */
+    public int removeDuplicates(int[] nums) {
+        if (nums.length == 0) {
+            return 0;
+        }
+        int currNum = nums[0];
+        int currNumCount = 0;
+        int lastToReplace = 0;
+        int removeCount = 0;
+        for (int i = 0; i < nums.length; i++) {
+            nums[lastToReplace] = nums[i];
+            if (nums[i] == currNum) {
+                currNumCount++;
+                if (currNumCount <= 2) {
+                    lastToReplace++;
+                } else {
+                    removeCount++;
+                }   
+            } else {
+                currNum = nums[i];
+                currNumCount = 1;
+                lastToReplace++;
+            }
+        }
+        return nums.length - removeCount;
+    }
+    
+    /**
+     * Problem: Implement a stack that keeps track of the min value.
+     * @author George
+     * @url https://leetcode.com/problems/min-stack/
+     */
+    public class MinStack {
+        
+        Stack<Integer> thisStack;
+        int minValue;
+        int size;
+
+        /** initialize your data structure here. */
+        public MinStack() {
+            this.thisStack = new Stack<>();
+            this.size = 0;
+            this.minValue = Integer.MAX_VALUE - 1;
+        }
+        
+        public void push(int x) {
+            this.thisStack.push(x);
+            if (size == 0) {
+                this.minValue = x;
+            } else {
+                if (x < minValue) {
+                    this.minValue = x;
+                }
+            }
+            this.size++;
+        }
+        
+        public void pop() {
+            int removed = thisStack.pop();
+            this.size--;
+            if (removed == minValue) {
+                if (size == 0) {
+                    this.minValue = 0;
+                } else {
+                    int[] tempArr = new int[size];
+                    int i = 0;
+                    int currMinValue = thisStack.peek();
+                    while(!thisStack.isEmpty()){
+                        int popped = thisStack.pop();
+                        if (popped < currMinValue) {
+                        currMinValue = popped;
+                        }
+                        tempArr[i] = popped;
+                        i++;
+                    }
+                    for (int j = i-1; j >= 0; j--) {
+                        thisStack.push(tempArr[j]);
+                    }
+                    this.minValue = currMinValue;
+                }
+            }
+        }
+        
+        public int top() {
+            return thisStack.peek();
+        }
+        
+        public int getMin() {
+            return minValue;
+        }
     }
 
 	public static void main(String[] args) {
