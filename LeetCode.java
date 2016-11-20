@@ -1604,6 +1604,115 @@ public class LeetCode {
         Boolean[][] dpMem = new Boolean[stones.length+1][stones.length*2+1];
         return canCrossHelper(stones, 1, 1, dpMem);
     }
+    
+    /**
+     * Problem: Rotate a matrix in place 90 degrees.
+     * @param matrix
+     * @url https://leetcode.com/problems/rotate-image/
+     */
+    public void rotate(int[][] matrix) {
+        int xCor = 0;
+        int yCor = 0;
+        while (matrix.length - (2 * xCor) > 0) {
+            int[] temp = new int[matrix.length - (2 * xCor)];
+            int tempSize = 0;
+            for (int i = xCor; i < matrix.length - xCor; i++) {
+                temp[tempSize] = matrix[yCor][i];
+                tempSize++;
+            }
+            // -----x
+            //      |
+            //      v
+            tempSize = 0;
+            for (int j = yCor; j < matrix.length - yCor; j++) {
+                int tempNum = matrix[j][matrix.length-xCor-1];
+                if (tempSize < temp.length-1) {
+                    matrix[j][matrix.length-xCor-1] = temp[tempSize];
+                }
+                temp[tempSize] = tempNum;
+                tempSize++;
+            }
+            //       |
+            //       |
+            // <-----x
+            tempSize = 0;
+            for (int k = matrix.length - xCor - 1; k >= xCor; k--) {
+                int tempNum = matrix[matrix.length-yCor-1][k];
+                if (tempSize < temp.length-1) {
+                    matrix[matrix.length-yCor-1][k] = temp[tempSize];
+                }
+                temp[tempSize] = tempNum;
+                tempSize++;
+            }
+            // ^
+            // |
+            // x-----
+            tempSize = 0;
+            for (int l = matrix.length - yCor - 1; l >= yCor; l--) {
+                int tempNum = matrix[l][xCor];
+                if (tempSize < temp.length-1) {
+                    matrix[l][xCor] = temp[tempSize];
+                }
+                temp[tempSize] = tempNum;
+                tempSize++;
+            }
+            // x----->
+            // |
+            // |
+            tempSize = 0;
+            for (int m = xCor; m < matrix.length - xCor; m++) {
+                matrix[yCor][m] = temp[tempSize];
+                tempSize++;
+            }
+            xCor++;
+            yCor++;
+        }
+    }
+    
+    /**
+     * Problem: Find all anagram starting positions of p in s.
+     * @param s
+     * @param p
+     * @return List of all anagram starting positions of p in s.
+     * @url https://leetcode.com/problems/find-all-anagrams-in-a-string/
+     */
+    public List<Integer> findAnagrams(String s, String p) {
+        
+        List<Integer> startingPositions = new ArrayList<>();
+        
+        if (p.length() > s.length()) {
+            return startingPositions;
+        }
+        
+        Map<Character, Integer> patternMap = new HashMap<>();
+        for (int j = 0; j < p.length(); j++) {
+            if (!patternMap.containsKey(p.charAt(j))) {
+                patternMap.put(p.charAt(j), 0);
+            }
+            patternMap.put(p.charAt(j), patternMap.get(p.charAt(j)) + 1);
+        }
+        
+        Map<Character, Integer> countMap = new HashMap<>();
+
+        for (int i = 0; i < s.length(); i++) {
+            if (!countMap.containsKey(s.charAt(i))) {
+                countMap.put(s.charAt(i), 0);
+            }
+            countMap.put(s.charAt(i), countMap.get(s.charAt(i)) + 1);
+            if (i >= p.length() - 1) {
+                if (i > p.length() - 1) {
+                    countMap.put(s.charAt(i-p.length()), countMap.get(s.charAt(i-p.length()))-1);
+                    if (countMap.get(s.charAt(i-p.length())) == 0) {
+                        countMap.remove(s.charAt(i-p.length()));
+                    }
+                }
+                if (countMap.equals(patternMap)) {
+                    startingPositions.add(i-p.length()+1);
+                }
+            }
+        }
+        return startingPositions;
+    }
 
 	public static void main(String[] args) {
 		/**
