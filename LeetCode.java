@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -1712,6 +1713,191 @@ public class LeetCode {
             }
         }
         return startingPositions;
+    }
+    
+    /**
+     * Problem: Given a list of strings, group them by anagram.
+     * @param strs
+     * @return List of list of strings grouped by anagrams.
+     * @url https://leetcode.com/problems/anagrams/
+     */
+    public List<List<String>> groupAnagrams(String[] strs) {
+        Map<String, List<String>> anagramBuckets = new HashMap<>();
+        for (String str : strs) {
+            char[] chars = str.toCharArray();
+            Arrays.sort(chars);
+            String sorted = new String(chars);
+            if (!anagramBuckets.containsKey(sorted)) {
+                anagramBuckets.put(sorted, new ArrayList<>());
+            }
+            anagramBuckets.get(sorted).add(str);
+        }
+        return new ArrayList<List<String>>(anagramBuckets.values());
+    }
+    
+    // Interval class
+    public class Interval {
+    	 int start;
+    	 int end;
+    	 Interval() { start = 0; end = 0; }
+    	 Interval(int s, int e) { start = s; end = e; }
+    }
+    
+    // Class to represent a point of an interval
+    class Point implements Comparable<Point> {
+        int val;
+        boolean isEnd;
+        public Point(int val, boolean isEnd) {
+            this.val = val;
+            this.isEnd = isEnd;
+        }
+        public int compareTo(Point anotherInstance) {
+            return this.val - anotherInstance.val;
+        }
+    }
+    
+    /**
+     * Problem: Given a list of intervals, merge them.
+     * @param intervals
+     * @return list of merged intervals
+     * @url https://leetcode.com/problems/merge-intervals/
+     */
+    public List<Interval> merge(List<Interval> intervals) {
+        List<Interval> mergedIntervals = new ArrayList<>();
+        List<Point> allPoints = new ArrayList<>();
+        Set<List<Integer>> visited = new HashSet<>();
+        for (Interval intv : intervals) {
+            if (visited.contains(Arrays.asList(intv.start, intv.end))) {
+                continue;
+            }
+            allPoints.add(new Point(intv.start, false));
+            allPoints.add(new Point(intv.end, true));
+            visited.add(Arrays.asList(intv.start, intv.end));
+        }
+        Collections.sort(allPoints);
+        int currNumIntervals = 0;
+        int currStart = 0;
+        int i = 0;
+        while (i < allPoints.size()) {
+            Point pt = allPoints.get(i);
+            if (!pt.isEnd) {
+                if (currNumIntervals == 0) {
+                    currStart = pt.val;
+                }
+                currNumIntervals++;
+            } else {
+                if (currNumIntervals == 1) {
+                    if (i < allPoints.size()-1 &&
+                        !allPoints.get(i+1).isEnd &&
+                        allPoints.get(i+1).val == pt.val) {
+                        i+=2;
+                        continue;
+                    }
+                    mergedIntervals.add(new Interval(currStart, pt.val));
+                }
+                currNumIntervals--;
+            }
+            i++;
+        }
+        return mergedIntervals;
+    }
+    
+    // Helper function for longestCommonPrefix
+    public int getLongestCommonPrefixIndex(String a, String b, int currIndex) {
+        int bound = currIndex;
+        if (currIndex > b.length()) {
+            bound = b.length();
+        }
+        int i = 0;
+        while (i < bound && a.charAt(i) == b.charAt(i)) {
+            i++;
+        }
+        return i;
+    }
+    
+    /**
+     * Problem: Find the longest common prefix of a list of strings
+     * @param strs
+     * @return the longest common prefix
+     * @url https://leetcode.com/problems/longest-common-prefix/
+     */
+    public String longestCommonPrefix(String[] strs) {
+        if (strs.length == 0) {
+            return "";
+        }
+        int longestCommonPrefixIndex = strs[0].length();
+        for (int i = 1; i < strs.length; i++) {
+            longestCommonPrefixIndex = getLongestCommonPrefixIndex(strs[0], strs[i], longestCommonPrefixIndex);
+        }
+        return strs[0].substring(0,longestCommonPrefixIndex);
+    }
+    
+    /**
+     * Problem: Given a list of course prerequisites, return true or false if numCourses number of courses can be taken.
+     * @param numCourses
+     * @param prerequisites
+     * @return true if so, false otherwise.
+     * @url https://leetcode.com/problems/course-schedule/
+     */
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        Set<Integer> coursesNoPrereq = new HashSet<>();
+        int[] numPreReqs = new int[numCourses];
+        Map<Integer, Set<Integer>> graph = new HashMap<>();
+        for (int i = 0; i < numCourses; i++) {
+            coursesNoPrereq.add(i);
+        }
+        for (int j = 0; j < prerequisites.length; j++) {
+            if (!graph.containsKey(prerequisites[j][1])) {
+                graph.put(prerequisites[j][1], new HashSet<>());
+            }
+            if (!graph.get(prerequisites[j][1]).contains(prerequisites[j][0])) {
+                graph.get(prerequisites[j][1]).add(prerequisites[j][0]);
+                numPreReqs[prerequisites[j][0]]++;
+            }
+            if (coursesNoPrereq.contains(prerequisites[j][0])) {
+                coursesNoPrereq.remove(prerequisites[j][0]);
+            }
+        }
+        int coursesTaken = 0;
+        System.out.println(coursesNoPrereq);
+        Queue<Integer> frontier = new LinkedList<Integer>(coursesNoPrereq);
+        while (!frontier.isEmpty()) {
+            Integer currentCourse = frontier.poll();
+            coursesTaken++;
+            if (graph.containsKey(currentCourse)) {
+                for (Integer coveredCourse : graph.get(currentCourse)) {
+                    numPreReqs[coveredCourse]--;
+                    if (numPreReqs[coveredCourse] == 0) {
+                        frontier.add(coveredCourse);
+                    }
+                }
+            }
+        }
+        return coursesTaken == numCourses;
+    }
+    
+    /**
+     * Problem: Find the length of the longest substring without any repeating characters.
+     * @param s
+     * @return length of longest substring in s without any repeating characters.
+     * @url https://leetcode.com/problems/longest-substring-without-repeating-characters/
+     */
+    public int lengthOfLongestSubstring(String s) {
+        Map<Character, Integer> charToIndex = new HashMap<>();
+        int currStartIndex = 0;
+        int currMaxLength = 0;
+        int currLength = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (charToIndex.containsKey(s.charAt(i)) &&
+                charToIndex.get(s.charAt(i)) >= currStartIndex) {
+                currStartIndex = charToIndex.get(s.charAt(i)) + 1;
+                currLength = i - currStartIndex;
+            }
+            charToIndex.put(s.charAt(i), i);
+            currLength++;
+            currMaxLength = Math.max(currLength, currMaxLength);
+        }
+        return currMaxLength;
     }
 
 	public static void main(String[] args) {
